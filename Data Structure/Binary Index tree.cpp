@@ -1,68 +1,67 @@
-#include<bits/stdc++.h>
-using namespace std;
-///Welcome to Nasif's Code
-#define co(q) cout<<q<<endl;
-typedef long long int ll;
-typedef unsigned long long int ull;
-const int MOD = (int)1e9+7;
-const int MAX = 1e6;
-#define pi acos(-1)
-#define bug cout<<"bug"<<endl;
-#define FastRead     ios_base::sync_with_stdio(false);cin.tie(NULL);
-int tree[100001];
-int arr[100000];
-int query(int idx)
+///For range/single update and single index query the following implementation can be used.
+struct Bit
 {
-    int sum=0;
-    while(idx>0)
+    int bit[100050];
+
+    void build(int n)
     {
-        sum+=tree[idx];
-        idx -= idx & (-idx);
+        memset(bit, 0, sizeof bit);
+        for(int i=1; i<=n; i++) update(i,arr[i],n);
     }
-    return sum;
-}
-void update(int idx, int x, int n) //n is the size of the array, x is the number to add
+
+    void update(int idx, int val, int n)
+    {
+        for (; idx <=n; idx += idx & -idx) bit[idx] += val;
+    }
+
+    void update(int l,int r,int val,int n)
+    {
+        update(l,val,n);
+        update(r+1,-val,n);
+    }
+
+    int query(int idx)
+    {
+        int sum=0;
+        for (; idx > 0; idx -= idx & -idx) sum += bit[idx];
+        return sum;
+    }
+
+} bit;
+
+
+///For range Min/Max query with single index update the following implementation can be used.
+struct Bit
 {
-    while(idx<=n)
+    int bit[200100]; /// Size needs to be double of N.
+
+    inline int combine(int x,int y)
     {
-        tree[idx]+=x;
-        idx += idx & (-idx);
+        return min(x,y); /// Change to max for max query.
     }
-}
-void build(int n)
-{
-    int i;
-    for(i=1; i<=n; i++)
-        tree[i]=0;
-    for(i=1; i<=n; i++)
+
+    void build(int n)
     {
-        update(i,arr[i],n);
+        for(int i=1; i<=n; i++) bit[i+n]=arr[i];
+        for(int i = n ; i >= 1 ; --i) bit[i] = combine(bit[i << 1], bit[(i << 1) | 1]);
     }
-}
-int main()
-{
-    int a,b,c,d,e,i;
-    cin>>a;
-    for(i=1; i<=a; i++)
-        cin>>arr[i];
-    build(a);
-    cin>>b;
-    while(b--)
+
+    void update(int idx, int val, int n)
     {
-        cin>>c>>d;
-        cout<<query(d)-query(c-1)<<endl;
+        idx += n;
+        bit[idx] = val;
+        for(idx >>= 1 ; idx >= 1 ; idx >>= 1) bit[idx] = combine(bit[idx << 1], bit[(idx << 1) | 1]);
     }
-}
 
-/*
-5
-1 2 3 4 5
-3
-2 3
-1 5
-4 5
-
-
-
-
-*/
+    int query(int l, int r,int n)
+    {
+        l += n, r += n;
+        int res = INT_MAX; /// Change to INT_MIN for max query.
+        for(; l<=r; l >>= 1,r >>= 1)
+        {
+            if(l & 1) res = combine(res, bit[l++]);
+            if(!(r & 1)) res = combine(res, bit[r--]);
+        }
+        return res;
+    }
+} bit;
