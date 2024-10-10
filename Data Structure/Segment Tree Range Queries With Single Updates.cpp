@@ -1,10 +1,30 @@
 template<typename T>
 struct SegmentTree
 {
-    #define null INT_MIN
-    #define SIZE 100000
-    std::vector<T> segment_tree;
-    T neutral_value;
+public:
+
+    SegmentTree(int n, vector<T>&arr, T neutral, function<T(T, T)> combine)
+        : n(n), neutral(neutral), combine(combine)
+    {
+        segmentTree.resize(4 * n, neutral);
+        build(index,1,n,arr);
+    }
+    void update(int idx, T val)
+    {
+        update(index,1,n,idx,val);
+    }
+
+    T query(int l, int r)
+    {
+        return query(index,1,n,l,r);
+    }
+
+private:
+    int index = 1;
+    int n = 0;
+    T neutral;
+    std::vector<T> segmentTree;
+    function<T(T, T)> combine;
 
     inline int lc(int node)
     {
@@ -16,27 +36,19 @@ struct SegmentTree
         return (node * 2) + 2;
     }
 
-    function<T(T, T)> combine;
-
-    SegmentTree(function<T(T, T)> comb, T neutral,int n)
-        : combine(comb), neutral_value(neutral)
-    {
-        segment_tree.resize(4 * n, neutral_value);
-    }
-
-    void build(int node, int s, int e)
+    void build(int node, int s, int e, vector<T>&arr)
     {
         if(s == e)
         {
-            segment_tree[node] = arr[s];
+            segmentTree[node] = arr[s];
             return;
         }
 
         int mid = (s + e) >> 1;
-        build(lc(node), s, mid);
-        build(rc(node), mid + 1, e);
+        build(lc(node), s, mid, arr);
+        build(rc(node), mid + 1, e, arr);
 
-        segment_tree[node] = combine(segment_tree[lc(node)], segment_tree[rc(node)]);
+        segmentTree[node] = combine(segmentTree[lc(node)], segmentTree[rc(node)]);
     }
 
     void update(int node, int s, int e, int idx, T val)
@@ -45,7 +57,7 @@ struct SegmentTree
 
         if(s == e)
         {
-            segment_tree[node] = val;
+            segmentTree[node] = val;
             return;
         }
 
@@ -53,13 +65,13 @@ struct SegmentTree
         update(lc(node), s, mid, idx, val);
         update(rc(node), mid + 1, e, idx, val);
 
-        segment_tree[node] = combine(segment_tree[lc(node)], segment_tree[rc(node)]);
+        segmentTree[node] = combine(segmentTree[lc(node)], segmentTree[rc(node)]);
     }
 
     T query(int node, int s, int e, int l, int r)
     {
-        if(l > e || r < s) return neutral_value;
-        if(l <= s && e <= r) return segment_tree[node];
+        if(l > e || r < s) return neutral;
+        if(l <= s && e <= r) return segmentTree[node];
 
         int mid = (s + e) >> 1;
         return combine(query(lc(node), s, mid, l, r), query(rc(node), mid + 1, e, l, r));
@@ -67,6 +79,13 @@ struct SegmentTree
 };
 
 /**
+For Sum :
+    SegmentTree<int> segmentTree(n,arr,Neutral,[](int x,int y)
+    {
+        ReturnYype
+    });
+
+For SUM : Neutral = 0, ReturnYype = return x+y;
 SegmentTree sumTree([](int x, int y) { return x+y;},0);
 SegmentTree minTree([](int x, int y) { return min(x,y);},INT_MAX);
 SegmentTree maxTree([](int x, int y) { return max(x,y);},INT_MIN);
