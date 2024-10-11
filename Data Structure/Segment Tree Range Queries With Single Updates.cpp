@@ -79,18 +79,21 @@ private:
 };
 
 /**
-For Sum :
-    SegmentTree<int> segmentTree(n,arr,Neutral,[](int x,int y)
+
+Sample :
+    SegmentTree<T> segmentTree(n,arr,Neutral,[](T x,T y)
     {
-        ReturnYype
+        return Execution;
     });
 
-For SUM : Neutral = 0, ReturnYype = return x+y;
-SegmentTree sumTree([](int x, int y) { return x+y;},0);
-SegmentTree minTree([](int x, int y) { return min(x,y);},INT_MAX);
-SegmentTree maxTree([](int x, int y) { return max(x,y);},INT_MIN);
-SegmentTree gcdTree([](int x, int y) { return __gcd(x, y);},0);
-SegmentTree xorTree([](int x, int y) { return x ^ y; }, 0);
-SegmentTree andTree([](int x, int y) { return x & y; }, -1);
-SegmentTree orTree([](int x, int y) { return x | y; }, 0);
+                    T = int or long long
+
+For SUM :       Neutral = 0,                  Execution = x+y
+For MIN :       Neutral = INT_MAX,            Execution = min(x,y)
+For MAX :       Neutral = INT_MIN,            Execution = max(x,y)
+For GCD :       Neutral = 0,                  Execution = __gcd(x, y)
+For XOR :       Neutral = 0,                  Execution = x ^ y
+For AND :       Neutral = -1,                 Execution = x & y
+For OR :        Neutral = 0,                  Execution = x | y
+
 **/
