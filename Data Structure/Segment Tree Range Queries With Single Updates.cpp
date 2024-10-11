@@ -20,8 +20,8 @@ public:
     }
 
 private:
-    int index = 1;
     int n = 0;
+    int index = 1;
     T neutral;
     std::vector<T> segmentTree;
     function<T(T, T)> combine;
@@ -71,6 +71,7 @@ private:
     T query(int node, int s, int e, int l, int r)
     {
         if(l > e || r < s) return neutral;
+
         if(l <= s && e <= r) return segmentTree[node];
 
         int mid = (s + e) >> 1;

@@ -1,16 +1,32 @@
-#include<bits/stdc++.h>
-using namespace std;
-const int MAX = 1e6+5;
-int arr[MAX];
 template <typename T>
 struct LazySegmentTree
 {
+public:
+
+    LazySegmentTree(int n, vector<T>&arr, T neutral, function<T(T, T)> combine)
+        : n(n), neutral(neutral), combine(combine)
+    {
+        segmentTree.resize(4 * n, neutral);
+        lazyTree.resize(4 * n, neutral);
+        build(index,1,n, arr);
+    }
+
+    void update(int l,int r, T val)
+    {
+        update(index,1,n,l,r,val);
+    }
+
+    T query(int l, int r)
+    {
+        return query(index,1,n,l,r);
+    }
+
 private:
-    std::vector<T> segment_tree, lazy_tree;
-    T neutral_value;
-    int invalid = INT_MIN;
-    int n;
+    int n = 0;
     int index = 1;
+    T neutral_value;
+    std::vector<T> segmentTree, lazyTree;
+    function<T(T, T)> combine;
 
     inline int lc(int node)
     {
@@ -20,6 +36,23 @@ private:
     inline int rc(int node)
     {
         return (node * 2) + 2;
+    }
+
+    void build(int node, int s, int e, vector<T>&arr)
+    {
+        lazy_tree[node] = invalid;
+
+        if (s == e)
+        {
+            segmentTree[node] = arr[s];
+            return;
+        }
+
+        int mid = (s + e) >> 1;
+        build(lc(node), s, mid, arr);
+        build(rc(node), mid + 1, e, arr);
+
+        segmentTree[node] = combine(segmentTree[lc(node)], segmentTree[rc(node)]);
     }
 
     inline void push(int node, int s, int e)
@@ -35,28 +68,6 @@ private:
         }
 
         lazy_tree[node] = invalid;
-    }
-
-    inline T combine(T x, T y)
-    {
-        return x + y;
-    }
-
-    void build(int node, int s, int e)
-    {
-        lazy_tree[node] = invalid;
-
-        if (s == e)
-        {
-            segment_tree[node] = arr[s];
-            return;
-        }
-
-        int mid = (s + e) >> 1;
-        build(lc(node), s, mid);
-        build(rc(node), mid + 1, e);
-
-        segment_tree[node] = combine(segment_tree[lc(node)], segment_tree[rc(node)]);
     }
 
     void update(int node, int s, int e, int l, int r, T val)
@@ -76,53 +87,38 @@ private:
         update(lc(node), s, mid, l, r, val);
         update(rc(node), mid + 1, e, l, r, val);
 
-        segment_tree[node] = combine(segment_tree[lc(node)], segment_tree[rc(node)]);
+        segmentTree[node] = combine(segmentTree[lc(node)], segmentTree[rc(node)]);
     }
 
     T query(int node, int s, int e, int l, int r)
     {
         push(node, s, e);
 
-        if (l > e || s > r) return neutral_value;
+        if (l > e || s > r) return neutral;
 
-        if (l <= s && e <= r) return segment_tree[node];
+        if (l <= s && e <= r) return segmentTree[node];
 
         int mid = (s + e) >> 1;
         return combine(query(lc(node), s, mid, l, r), query(rc(node), mid + 1, e, l, r));
     }
-public:
-
-    LazySegmentTree(T neutral, int n): neutral_value(neutral), n(n)
-    {
-        segment_tree.resize(4 * n, neutral_value);
-        lazy_tree.resize(4 * n, neutral_value);
-    }
-
-    void build(int n)
-    {
-        build(index,1,n);
-    }
-
-    void update(int l,int r, T val)
-    {
-        update(index,1,n,l,r,val);
-    }
-
-    T query(int l, int r)
-    {
-        return query(index,1,n,l,r);
-    }
 };
 
+/**
 
-int main()
-{
-    int n = 100;
-    LazySegmentTree<int> lSTree(0,n);
-    for(int i=1; i<=n; i++)arr[i] = i;
-    lSTree.build(n);
-    for(int i=1; i<=n; i++)
-        cout<<lSTree.query(i, n)<<endl;
-    return 0;
-}
+Sample :
+    LazySegmentTree<T> lazySegmentTree(n,arr,Neutral,[](T x,T y)
+    {
+        return Execution;
+    });
 
+                    T = int or long long
+
+For SUM :       Neutral = 0,                  Execution = x+y
+For MIN :       Neutral = INT_MAX,            Execution = min(x,y)
+For MAX :       Neutral = INT_MIN,            Execution = max(x,y)
+For GCD :       Neutral = 0,                  Execution = __gcd(x, y)
+For XOR :       Neutral = 0,                  Execution = x ^ y
+For AND :       Neutral = -1,                 Execution = x & y
+For OR :        Neutral = 0,                  Execution = x | y
+
+**/

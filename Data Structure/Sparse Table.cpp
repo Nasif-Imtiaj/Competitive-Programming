@@ -1,38 +1,64 @@
-struct Sparse_table
+template<typename T>
+struct SparseTable
 {
-#define Level 20
-#define Size 100050
-    int sparse_table[Level][Size];
-    int lg[Size];
+    vector<vector<T>> sparse_table;
+    vector<int> lg;
+    function<T(T, T)> combine;
 
-    inline void calculateLog(int n)
+    SparseTable(int n, const vector<T>& arr, function<T(T, T)> comb)
+        : combine(comb)
     {
+        lg.resize(n + 1);
+        sparse_table.resize(log2(n) + 1, vector<T>(n + 1));
+        calculateLog(n);
+        initTable(n, arr);
+        build(n);
+    }
+
+    void calculateLog(int n)
+    {
+        lg[1] = 0;
         for(int i = 2; i <= n; i++)
             lg[i] = lg[i / 2] + 1;
     }
 
-    inline void initTable(int n,int arr[])
+    void initTable(int n, const vector<T>& arr)
     {
-        for(int i=0; i<n; i++)
-            sparse_table[0][i]=arr[i];
+        for(int i = 1; i <= n; i++)
+            sparse_table[0][i] = arr[i];
     }
 
-    inline int combine(int a,int b)
+    void build(int n)
     {
-        return min(a,b); ///Supports min, max, sum, gcd, xor
-    }
-
-    void build(int n,int arr[])
-    {
-        initTable(n,arr);
-        calculateLog(n);
         for(int i = 1; i <= lg[n]; i++)
-            for(int j = 0; j < n - (1 << i) + 1; j++)
-                sparse_table[i][j] = combine(sparse_table[i - 1][j],sparse_table[i - 1][j + (1 << (i - 1))]);
+            for(int j = 1; j + (1 << i) - 1 <= n; j++)
+                sparse_table[i][j] = combine(sparse_table[i - 1][j], sparse_table[i - 1][j + (1 << (i - 1))]);
     }
 
-    int query(int l,int r)
+    T query(int l, int r)
     {
-        return combine(sparse_table[lg[r - l + 1]][l], sparse_table[lg[r - l + 1]][r - (1 << lg[r - l + 1]) + 1]);
+        int len = r - l + 1;
+        int j = lg[len];
+        return combine(sparse_table[j][l], sparse_table[j][r - (1 << j) + 1]);
     }
-} st;
+};
+
+/**
+
+Sample :
+    SparseTable<T> st(n,arr,Neutral,[](T x,T y)
+    {
+        return Execution;
+    });
+
+                    T = int or long long
+
+For SUM :       Neutral = 0,                  Execution = x+y
+For MIN :       Neutral = INT_MAX,            Execution = min(x,y)
+For MAX :       Neutral = INT_MIN,            Execution = max(x,y)
+For GCD :       Neutral = 0,                  Execution = __gcd(x, y)
+For XOR :       Neutral = 0,                  Execution = x ^ y
+For AND :       Neutral = -1,                 Execution = x & y
+For OR :        Neutral = 0,                  Execution = x | y
+
+**/
