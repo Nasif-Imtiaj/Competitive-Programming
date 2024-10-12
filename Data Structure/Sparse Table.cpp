@@ -53,12 +53,11 @@ Sample :
 
                     T = int or long long
 
-For SUM :       Neutral = 0,                  Execution = x+y
-For MIN :       Neutral = INT_MAX,            Execution = min(x,y)
-For MAX :       Neutral = INT_MIN,            Execution = max(x,y)
-For GCD :       Neutral = 0,                  Execution = __gcd(x, y)
-For XOR :       Neutral = 0,                  Execution = x ^ y
-For AND :       Neutral = -1,                 Execution = x & y
-For OR :        Neutral = 0,                  Execution = x | y
+For MIN :       Execution = min(x,y)
+For MAX :       Execution = max(x,y)
+For GCD :       Execution = __gcd(x, y)
+For XOR :       Execution = x ^ y
+For AND :       Execution = x & y
+For OR :        Execution = x | y
 
 **/

@@ -24,7 +24,7 @@ public:
 private:
     int n = 0;
     int index = 1;
-    T neutral_value;
+    T neutral;
     std::vector<T> segmentTree, lazyTree;
     function<T(T, T)> combine;
 
@@ -40,7 +40,7 @@ private:
 
     void build(int node, int s, int e, vector<T>&arr)
     {
-        lazy_tree[node] = invalid;
+        lazyTree[node] = neutral;
 
         if (s == e)
         {
@@ -57,17 +57,17 @@ private:
 
     inline void push(int node, int s, int e)
     {
-        if (lazy_tree[node] == invalid) return;
+        if (lazyTree[node] == neutral) return;
 
-        segment_tree[node] = lazy_tree[node];
+        segmentTree[node] = lazyTree[node];
 
         if (s != e)
         {
-            lazy_tree[lc(node)] = lazy_tree[node];
-            lazy_tree[rc(node)] = lazy_tree[node];
+            lazyTree[lc(node)] = lazyTree[node];
+            lazyTree[rc(node)] = lazyTree[node];
         }
 
-        lazy_tree[node] = invalid;
+        lazyTree[node] = neutral;
     }
 
     void update(int node, int s, int e, int l, int r, T val)
@@ -78,7 +78,7 @@ private:
 
         if (l <= s && e <= r)
         {
-            lazy_tree[node] = val;
+            lazyTree[node] = val;
             push(node, s, e);
             return;
         }
@@ -102,6 +102,7 @@ private:
         return combine(query(lc(node), s, mid, l, r), query(rc(node), mid + 1, e, l, r));
     }
 };
+
 
 /**
 
