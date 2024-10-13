@@ -1,7 +1,3 @@
-#include <vector>
-#include <string>
-using namespace std;
-
 struct KMP
 {
     vector<int> buildLPS(const string &pattern)
@@ -57,25 +53,7 @@ struct KMP
 
     bool isSubstring(const string &text, const string &pattern)
     {
-        int n = text.size(), m = pattern.size();
-        if (m == 0) return true;
-        vector<int> lps = buildLPS(pattern);
-        int i = 0, j = 0;
-
-        while (i < n)
-        {
-            if (pattern[j] == text[i])
-            {
-                i++;
-                j++;
-            }
-            if (j == m) return true;
-            else if (i < n && pattern[j] != text[i])
-            {
-                j ? j = lps[j - 1] : i++;
-            }
-        }
-        return false;
+        return !substringOccurrences(text, pattern).empty();
     }
 
     int longestCommonPrefix(const string &s1, const string &s2)
